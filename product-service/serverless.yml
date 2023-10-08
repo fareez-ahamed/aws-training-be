@@ -1,0 +1,26 @@
+service: aws-training-product-service # NOTE: update this with your service name
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+
+functions:
+
+  get_products:
+    handler: handlers/product-list.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /products
+      
+  get_product_detail:
+    handler: handlers/product-detail.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /products/{id}
+
+plugins:
+  - serverless-esbuild
