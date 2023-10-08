@@ -5,6 +5,10 @@ provider:
   name: aws
   runtime: nodejs18.x
   region: us-east-1
+  httpApi:
+    cors: true
+    # payload: "2.0"
+    # disableDefaultEndpoint: false
 
 functions:
 

@@ -6,6 +6,6 @@ export const handler = async (
 ): Promise<APIGatewayProxyResult> => {
   return {
     statusCode: 200,
-    body: JSON.stringify({ result: await getProducts() }),
+    body: JSON.stringify(await getProducts()),
   };
 };
