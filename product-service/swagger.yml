@@ -1,0 +1,78 @@
+swagger: "2.0"
+info:
+  title: Product Service
+  version: 1.0.0
+host: nsl7peyxnc.execute-api.us-east-1.amazonaws.com
+schemes:
+  - https
+paths:
+  /products:
+    get:
+      summary: Returns a list of products.
+      # description: Optional  description in Markdown.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ProductArray'
+  /products/{id}:
+    get:
+      summary: Returns a particular product based on id
+      # description: Optional  description in Markdown.
+      parameters:
+        - in: path
+          name: id
+          description: Unique id that identifies a product
+          schema:
+            type: string
+          required: true
+
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The Product ID
+        title:
+          type: string
+          description: Product name
+        description:
+          type: string
+          description: Product description
+        count:
+          type: string
+          description: Product count
+        price:
+          type: string
+          description: Product price
+    ProductArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/Product'
