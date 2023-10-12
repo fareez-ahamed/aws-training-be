@@ -1,3 +1,7 @@
+import { DynamoDB } from "@aws-sdk/client-dynamodb";
+import { faker } from "@faker-js/faker";
+
+const ddb = new DynamoDB({ region: "us-east-1" });
 export interface Product {
   count: number;
   description: string;
@@ -66,8 +70,64 @@ const PRODUCTS: Product[] = [
 ];
 
 export async function getProducts(): Promise<Product[]> {
-  return PRODUCTS;
+  const { Items: products } = await ddb.scan({
+    TableName: process.env.PRODUCT_TABLE_NAME,
+    Limit: 100,
+  });
+  const { Items: productCounts } = await ddb.scan({
+    TableName: process.env.STOCK_TABLE_NAME,
+    Limit: 100,
+  });
+
+  const productsById = new Map<string, Product>();
+
+  console.log("Products", products);
+
+  products?.forEach((item) =>
+    productsById.set(item.id.S as string, {
+      id: item.id.S as string,
+      title: item.title.S as string,
+      description: item.description.S as string,
+      price: Number(item.price.N),
+      count: 0,
+    })
+  );
+
+  productCounts?.forEach((item) => {
+    const product = productsById.get(item.product_id.S as string);
+    if (product) {
+      product.count = Number(item.count.N);
+    }
+  });
+
+  return Array.from(productsById.values());
 }
+
 export async function getProduct(id: string): Promise<Product | undefined> {
-  return PRODUCTS.find((x) => x.id === id);
+  const product = await ddb.getItem({
+    TableName: process.env.PRODUCT_TABLE_NAME,
+    Key: {
+      id: {
+        S: id,
+      },
+    },
+  });
+  const productCount = await ddb.getItem({
+    TableName: process.env.STOCK_TABLE_NAME,
+    Key: {
+      product_id: {
+        S: id,
+      },
+    },
+  });
+  if (product.Item === undefined) {
+    return undefined;
+  }
+  return {
+    id: product.Item.id.S as string,
+    title: product.Item.title.S as string,
+    description: product.Item.description.S as string,
+    price: Number(product.Item.price.N),
+    count: Number(productCount.Item?.count.N ?? "0"),
+  };
 }
