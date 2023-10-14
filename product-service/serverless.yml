@@ -43,6 +43,13 @@ functions:
           method: GET
           path: /products/{id}
 
+  create_product:
+    handler: handlers/create-product.handler
+    events:
+      - httpApi:
+          method: POST
+          path: /products
+
   data_seeder:
     handler: handlers/data-seeder.handler
 

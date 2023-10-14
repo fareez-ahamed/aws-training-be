@@ -1,6 +1,10 @@
 import { BatchWriteItemCommandInput, DynamoDB } from "@aws-sdk/client-dynamodb";
 import { faker } from "@faker-js/faker";
-import { Product } from "../products";
+import {
+  Product,
+  transformToProductTableUpdate,
+  transformToStockTableUpdate,
+} from "../products";
 
 const ddb = new DynamoDB({ region: "us-east-1" });
 
@@ -45,41 +49,5 @@ function newFakeProduct(): Product {
     price: faker.number.int({ min: 9, max: 99 }),
     description: faker.commerce.productDescription(),
     count: faker.number.int({ min: 5, max: 50 }),
-  };
-}
-
-function transformToProductTableUpdate(p: Product) {
-  return {
-    PutRequest: {
-      Item: {
-        id: {
-          S: p.id,
-        },
-        title: {
-          S: p.title,
-        },
-        price: {
-          N: p.price.toPrecision(2),
-        },
-        description: {
-          S: p.description,
-        },
-      },
-    },
-  };
-}
-
-function transformToStockTableUpdate(p: Product) {
-  return {
-    PutRequest: {
-      Item: {
-        product_id: {
-          S: p.id,
-        },
-        count: {
-          N: p.count.toString(),
-        },
-      },
-    },
   };
 }
