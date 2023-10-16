@@ -23,6 +23,7 @@ provider:
         - dynamoDb:UpdateItem
         - dynamoDb:DeleteItem
         - dynamodb:BatchWriteItem
+        - dynamodb:TransactWriteItems
       Resource: 
         - "arn:aws:dynamodb:us-east-1:396572677717:table/aws_training_products"
         - "arn:aws:dynamodb:us-east-1:396572677717:table/aws_training_stock"

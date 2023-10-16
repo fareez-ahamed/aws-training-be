@@ -1,4 +1,8 @@
-import { BatchWriteItemCommandInput, DynamoDB } from "@aws-sdk/client-dynamodb";
+import {
+  BatchWriteItemCommandInput,
+  DynamoDB,
+  TransactWriteItemsCommandInput,
+} from "@aws-sdk/client-dynamodb";
 import { faker } from "@faker-js/faker";
 import { v4 as uuid } from "uuid";
 
@@ -90,19 +94,15 @@ export async function createProduct(
     ...product,
   };
 
-  const params: BatchWriteItemCommandInput = {
-    RequestItems: {
-      [process.env.PRODUCT_TABLE_NAME]: [
-        transformToProductTableUpdate(newProduct),
-      ],
-      [process.env.STOCK_TABLE_NAME]: [transformToStockTableUpdate(newProduct)],
-    },
+  const params: TransactWriteItemsCommandInput = {
+    TransactItems: [
+      transformToProductTableUpdate(newProduct),
+      transformToStockTableUpdate(newProduct),
+    ],
   };
 
-  console.log("Request Items", params.RequestItems);
-
   try {
-    const data = await ddb.batchWriteItem(params);
+    const data = await ddb.transactWriteItems(params);
     console.log("Success", data);
   } catch (error) {
     console.error("Error occurred", error);
@@ -111,7 +111,8 @@ export async function createProduct(
 
 export function transformToProductTableUpdate(p: Product) {
   return {
-    PutRequest: {
+    Put: {
+      TableName: process.env.PRODUCT_TABLE_NAME,
       Item: {
         id: {
           S: p.id,
@@ -132,7 +133,8 @@ export function transformToProductTableUpdate(p: Product) {
 
 export function transformToStockTableUpdate(p: Product) {
   return {
-    PutRequest: {
+    Put: {
+      TableName: process.env.STOCK_TABLE_NAME,
       Item: {
         product_id: {
           S: p.id,

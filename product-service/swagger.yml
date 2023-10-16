@@ -19,6 +19,39 @@ paths:
               application/json:
                 schema:
                   $ref: '#/components/schemas/ProductArray'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Creates a new product
+      requestBody:
+        description: New product data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductInput'
+
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /products/{id}:
     get:
       summary: Returns a particular product based on id
@@ -46,6 +79,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
     Error:
@@ -54,6 +93,21 @@ components:
         error:
           type: string
           description: Error message
+    ProductInput:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Product name
+        description:
+          type: string
+          description: Product description
+        count:
+          type: string
+          description: Product count
+        price:
+          type: string
+          description: Product price
     Product:
       type: object
       properties:
