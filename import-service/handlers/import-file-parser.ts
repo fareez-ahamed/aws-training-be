@@ -1,5 +1,10 @@
 import { S3Event } from "aws-lambda";
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  GetObjectCommand,
+  CopyObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 import csv from "csv-parser";
 
 export const handler = async (event: S3Event) => {
@@ -25,6 +30,21 @@ export const handler = async (event: S3Event) => {
     const objectStream = result.Body as NodeJS.ReadableStream;
 
     const data = await handleStream(objectStream);
+
+    await s3Client.send(
+      new CopyObjectCommand({
+        CopySource: `${bucketName}/${objectKey}`,
+        Bucket: bucketName,
+        Key: `parsed/${objectKey.split("/")[1]}`,
+      })
+    );
+
+    await s3Client.send(
+      new DeleteObjectCommand({
+        Bucket: bucketName,
+        Key: objectKey,
+      })
+    );
   } catch (err) {
     console.error("Failed", err);
   }
