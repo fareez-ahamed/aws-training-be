@@ -30,5 +30,15 @@ functions:
           method: GET
           path: /import
 
+  importFileParser:
+    handler: handlers/import-file-parser.handler
+    events:
+      - s3:
+          bucket: "aws-training-import-service-uploads"
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: uploaded/
+          existing: true
+
 plugins:
   - serverless-esbuild
