@@ -1,5 +1,7 @@
 {
   "devDependencies": {
+    "@types/node": "18.15.0",
+    "@types/uuid": "^9.0.5",
     "esbuild": "^0.14.25",
     "express": "^4.18.2",
     "serverless-esbuild": "^1.25.0",
@@ -7,8 +9,15 @@
     "yaml": "^2.3.2"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.427.0",
+    "@faker-js/faker": "^8.1.0",
     "@types/aws-lambda": "^8.10.124",
     "aws-lambda": "^1.0.7",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "uuid": "^9.0.1",
+    "zod": "^3.22.4"
+  },
+  "scripts": {
+    "swagger": "node swagger_server.js"
   }
 }

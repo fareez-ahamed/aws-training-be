@@ -1,0 +1,44 @@
+
+service: aws-training-import-service # NOTE: update this with your service name
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  memorySize: 128
+  httpApi:
+    cors: true
+    # payload: "2.0"
+    # disableDefaultEndpoint: false
+  iamRoleStatements:
+    - Effect: Allow
+      Action: s3:ListBucket
+      Resource: 
+        - "arn:aws:s3:::aws-training-import-service-uploads"
+    - Effect: Allow
+      Action: s3:*
+      Resource: 
+        - "arn:aws:s3:::*"
+
+functions:
+
+  importProductsFile:
+    handler: handlers/import-products.handler
+    events:
+      - httpApi:
+          method: GET
+          path: /import
+
+  importFileParser:
+    handler: handlers/import-file-parser.handler
+    events:
+      - s3:
+          bucket: "aws-training-import-service-uploads"
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: uploaded/
+          existing: true
+
+plugins:
+  - serverless-esbuild

@@ -5,10 +5,28 @@ provider:
   name: aws
   runtime: nodejs18.x
   region: us-east-1
+  memorySize: 128
   httpApi:
     cors: true
     # payload: "2.0"
     # disableDefaultEndpoint: false
+  environment:
+    PRODUCT_TABLE_NAME: aws_training_products
+    STOCK_TABLE_NAME: aws_training_stock
+  iamRoleStatements:
+    - Effect: Allow
+      Action: 
+        - dynamoDb:Query
+        - dynamoDb:Scan
+        - dynamoDb:GetItem
+        - dynamoDb:PutItem
+        - dynamoDb:UpdateItem
+        - dynamoDb:DeleteItem
+        - dynamodb:BatchWriteItem
+        - dynamodb:TransactWriteItems
+      Resource: 
+        - "arn:aws:dynamodb:us-east-1:396572677717:table/aws_training_products"
+        - "arn:aws:dynamodb:us-east-1:396572677717:table/aws_training_stock"
 
 functions:
 
@@ -25,6 +43,16 @@ functions:
       - httpApi:
           method: GET
           path: /products/{id}
+
+  create_product:
+    handler: handlers/create-product.handler
+    events:
+      - httpApi:
+          method: POST
+          path: /products
+
+  data_seeder:
+    handler: handlers/data-seeder.handler
 
 plugins:
   - serverless-esbuild
