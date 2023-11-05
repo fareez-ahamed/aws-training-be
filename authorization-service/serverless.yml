@@ -1,0 +1,38 @@
+useDotenv: true
+service: aws-training-authorization-service # NOTE: update this with your service name
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  memorySize: 128
+  httpApi:
+    cors: true
+    # payload: "2.0"
+    # disableDefaultEndpoint: false
+  # iamRoleStatements:
+  #   - Effect: Allow
+  #     Action: 
+  #       - sqs:SendMessage
+  #       - sqs:GetQueueAttributes
+  #     Resource: 
+  #       - "arn:aws:sqs:us-east-1:396572677717:aws-training-catalog-items-queue"
+  #   - Effect: Allow
+  #     Action: s3:ListBucket
+  #     Resource: 
+  #       - "arn:aws:s3:::aws-training-import-service-uploads"
+  #   - Effect: Allow
+  #     Action: s3:*
+  #     Resource: 
+  #       - "arn:aws:s3:::*"
+
+functions:
+
+  basicAuthorizer:
+    handler: handlers/basic-authorizer.handler
+    environment:
+      CREDENTIALS: ${env:CREDENTIALS}
+
+plugins:
+  - serverless-esbuild
