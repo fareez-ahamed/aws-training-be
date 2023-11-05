@@ -13,7 +13,23 @@ provider:
   environment:
     PRODUCT_TABLE_NAME: aws_training_products
     STOCK_TABLE_NAME: aws_training_stock
+    CREATE_PRODUCT_TOPIC_ARN: "arn:aws:sns:us-east-1:396572677717:aws-training-product-service-dev-createProductTopic-EGHHZ9QYYPCo"
+  
   iamRoleStatements:
+    - Effect: Allow
+      Action: 
+        - sqs:ReceiveMessage
+        - sqs:DeleteMessage
+        - sqs:GetQueueAttributes
+      Resource: 
+        - !GetAtt catalogItemsQueue.Arn 
+
+    - Effect: Allow
+      Action: 
+        - sns:Publish
+      Resource: 
+        - "arn:aws:sns:us-east-1:396572677717:aws-training-product-service-dev-createProductTopic-EGHHZ9QYYPCo"
+
     - Effect: Allow
       Action: 
         - dynamoDb:Query
@@ -27,6 +43,27 @@ provider:
       Resource: 
         - "arn:aws:dynamodb:us-east-1:396572677717:table/aws_training_products"
         - "arn:aws:dynamodb:us-east-1:396572677717:table/aws_training_stock"
+
+resources:
+  Resources:
+    catalogItemsQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: aws-training-catalog-items-queue
+        MessageRetentionPeriod: 86400
+
+    createProductTopic:
+      Type: "AWS::SNS::Topic"
+      Properties:
+        DisplayName: "Create Product Topic"
+
+    productCreatedSubscription:
+      Type: "AWS::SNS::Subscription"
+      Properties:
+        Protocol: email
+        TopicArn:
+          Ref: createProductTopic
+        Endpoint: contact@fareez.info
 
 functions:
 
@@ -50,6 +87,13 @@ functions:
       - httpApi:
           method: POST
           path: /products
+
+  catalogBatchProcess:
+    handler: handlers/catalog-batch-process.handler
+    events:
+      - sqs: 
+          arn: !GetAtt catalogItemsQueue.Arn
+          batchSize: 5
 
   data_seeder:
     handler: handlers/data-seeder.handler
